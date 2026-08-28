@@ -1,4 +1,7 @@
 from fastapi import FastAPI
+from sqlalchemy import text
+
+from app.database.connection import engine
 
 app = FastAPI(
     title="MediKiosk API",
@@ -13,3 +16,22 @@ def health_check():
         "status": "ok",
         "service": "MediKiosk API"
     }
+
+
+@app.get("/health/database")
+def database_health():
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+
+        return {
+            "status": "ok",
+            "database": "connected"
+        }
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "database": "connection failed",
+            "details": str(e)
+        }
