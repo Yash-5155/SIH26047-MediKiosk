@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from sqlalchemy import text
 
+from app.api.sessions import router as sessions_router
 from app.database.connection import engine
 from app.api.patients import router as patients_router
 
@@ -13,6 +14,7 @@ app = FastAPI(
 
 
 app.include_router(patients_router)
+app.include_router(sessions_router)
 
 
 @app.get("/health")
