@@ -270,3 +270,30 @@ CREATE TABLE doctor_reviews (
     INDEX idx_review_doctor (doctor_id),
     INDEX idx_review_status (status)
 );
+
+
+
+USE medikiosk;
+
+CREATE TABLE patient_identifiers (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    patient_id BIGINT UNSIGNED NOT NULL,
+
+    identifier_type VARCHAR(20) NOT NULL,
+    identifier_hash VARCHAR(255) NOT NULL,
+
+    verification_status VARCHAR(30) NOT NULL DEFAULT 'UNVERIFIED',
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    verified_at TIMESTAMP NULL,
+
+    CONSTRAINT fk_identifier_patient
+        FOREIGN KEY (patient_id)
+        REFERENCES patients(id)
+        ON DELETE CASCADE,
+
+    UNIQUE KEY uq_identifier_hash (identifier_hash),
+    INDEX idx_identifier_patient (patient_id),
+    INDEX idx_identifier_type (identifier_type)
+);
