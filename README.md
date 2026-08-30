@@ -15,6 +15,6 @@ Currently in development.
 - Yash
 - Kundan
 - Kirti
-- Divyansh
+- Satya
 - Anshika
 - Abhigya
