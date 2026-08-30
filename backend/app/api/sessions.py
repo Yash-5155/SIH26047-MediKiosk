@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -67,5 +68,39 @@ def get_session(
             status_code=404,
             detail="Intake session not found"
         )
+
+    return session
+
+@router.post(
+    "/{session_id}/complete",
+    response_model=IntakeSessionResponse
+)
+def complete_session(
+    session_id: int,
+    db: Session = Depends(get_db)
+):
+    session = (
+        db.query(IntakeSession)
+        .filter(IntakeSession.id == session_id)
+        .first()
+    )
+
+    if session is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Intake session not found"
+        )
+
+    if session.status != "IN_PROGRESS":
+        raise HTTPException(
+            status_code=400,
+            detail="Session is not in progress"
+        )
+
+    session.status = "COMPLETED"
+    session.completed_at = datetime.utcnow()
+
+    db.commit()
+    db.refresh(session)
 
     return session
