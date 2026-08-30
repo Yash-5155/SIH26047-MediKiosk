@@ -271,9 +271,9 @@ CREATE TABLE doctor_reviews (
     INDEX idx_review_status (status)
 );
 
-
-
-USE medikiosk;
+-- ============================================================
+-- 10. Patient Identifications
+-- ============================================================
 
 CREATE TABLE patient_identifiers (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -296,4 +296,80 @@ CREATE TABLE patient_identifiers (
     UNIQUE KEY uq_identifier_hash (identifier_hash),
     INDEX idx_identifier_patient (patient_id),
     INDEX idx_identifier_type (identifier_type)
+);
+
+-- ============================================================
+-- 11. Questions
+-- ============================================================
+
+CREATE TABLE questions (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    question_text TEXT NOT NULL,
+
+    question_key VARCHAR(100) NOT NULL UNIQUE,
+
+    question_type VARCHAR(30) NOT NULL,
+
+    is_required BOOLEAN NOT NULL DEFAULT FALSE,
+
+    display_order INT NOT NULL DEFAULT 0,
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_question_order (display_order),
+    INDEX idx_question_active (is_active)
+);
+
+CREATE TABLE question_options (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    question_id BIGINT UNSIGNED NOT NULL,
+
+    option_value VARCHAR(100) NOT NULL,
+
+    option_label VARCHAR(255) NOT NULL,
+
+    display_order INT NOT NULL DEFAULT 0,
+
+    CONSTRAINT fk_option_question
+        FOREIGN KEY (question_id)
+        REFERENCES questions(id)
+        ON DELETE CASCADE,
+
+    INDEX idx_option_question (question_id)
+);
+
+CREATE TABLE intake_responses (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    session_id BIGINT UNSIGNED NOT NULL,
+
+    question_id BIGINT UNSIGNED NOT NULL,
+
+    answer_text TEXT NULL,
+
+    input_mode VARCHAR(30) NOT NULL DEFAULT 'TEXT',
+
+    answered_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_intake_response_session
+        FOREIGN KEY (session_id)
+        REFERENCES intake_sessions(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_intake_response_question
+        FOREIGN KEY (question_id)
+        REFERENCES questions(id)
+        ON DELETE CASCADE,
+
+    UNIQUE KEY uq_session_question (
+        session_id,
+        question_id
+    ),
+
+    INDEX idx_response_session (session_id),
+    INDEX idx_response_question (question_id)
 );
