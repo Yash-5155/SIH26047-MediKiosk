@@ -387,23 +387,13 @@ CREATE TABLE medical_documents (
 
     session_id BIGINT UNSIGNED NULL,
 
-    original_filename VARCHAR(255) NOT NULL,
+    document_type VARCHAR(50) NOT NULL DEFAULT 'OTHER',
 
-    stored_filename VARCHAR(255) NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
 
     file_path VARCHAR(500) NOT NULL,
 
-    mime_type VARCHAR(100) NOT NULL,
-
-    file_size BIGINT UNSIGNED NOT NULL,
-
-    processing_status VARCHAR(30) NOT NULL DEFAULT 'UPLOADED',
-
-    extracted_text LONGTEXT NULL,
-
     uploaded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    processed_at TIMESTAMP NULL,
 
     CONSTRAINT fk_document_patient
         FOREIGN KEY (patient_id)
@@ -416,6 +406,30 @@ CREATE TABLE medical_documents (
         ON DELETE SET NULL,
 
     INDEX idx_document_patient (patient_id),
-    INDEX idx_document_session (session_id),
-    INDEX idx_document_status (processing_status)
+    INDEX idx_document_session (session_id)
+);
+
+CREATE TABLE document_extractions (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    document_id BIGINT UNSIGNED NOT NULL,
+
+    extracted_text LONGTEXT NULL,
+
+    extraction_status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
+
+    extraction_engine VARCHAR(50) NULL,
+
+    extracted_at TIMESTAMP NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_extraction_document
+        FOREIGN KEY (document_id)
+        REFERENCES medical_documents(id)
+        ON DELETE CASCADE,
+
+    UNIQUE KEY uq_extraction_document (document_id),
+
+    INDEX idx_extraction_status (extraction_status)
 );
