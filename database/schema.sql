@@ -373,3 +373,8 @@ CREATE TABLE intake_responses (
     INDEX idx_response_session (session_id),
     INDEX idx_response_question (question_id)
 );
+
+
+ALTER TABLE intake_sessions
+MODIFY completed_at TIMESTAMP NULL
+DEFAULT NULL;
