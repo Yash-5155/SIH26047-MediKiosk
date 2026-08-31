@@ -378,3 +378,44 @@ CREATE TABLE intake_responses (
 ALTER TABLE intake_sessions
 MODIFY completed_at TIMESTAMP NULL
 DEFAULT NULL;
+
+
+CREATE TABLE medical_documents (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    patient_id BIGINT UNSIGNED NOT NULL,
+
+    session_id BIGINT UNSIGNED NULL,
+
+    original_filename VARCHAR(255) NOT NULL,
+
+    stored_filename VARCHAR(255) NOT NULL,
+
+    file_path VARCHAR(500) NOT NULL,
+
+    mime_type VARCHAR(100) NOT NULL,
+
+    file_size BIGINT UNSIGNED NOT NULL,
+
+    processing_status VARCHAR(30) NOT NULL DEFAULT 'UPLOADED',
+
+    extracted_text LONGTEXT NULL,
+
+    uploaded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    processed_at TIMESTAMP NULL,
+
+    CONSTRAINT fk_document_patient
+        FOREIGN KEY (patient_id)
+        REFERENCES patients(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_document_session
+        FOREIGN KEY (session_id)
+        REFERENCES intake_sessions(id)
+        ON DELETE SET NULL,
+
+    INDEX idx_document_patient (patient_id),
+    INDEX idx_document_session (session_id),
+    INDEX idx_document_status (processing_status)
+);
