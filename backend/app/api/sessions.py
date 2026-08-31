@@ -1,6 +1,6 @@
-from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from app.database.connection import get_db
 from app.models.intake_session import IntakeSession
@@ -98,7 +98,46 @@ def complete_session(
         )
 
     session.status = "COMPLETED"
-    session.completed_at = datetime.utcnow()
+    session.completed_at = db.execute(
+        text("SELECT CURRENT_TIMESTAMP")
+    ).scalar()
+
+    db.commit()
+    db.refresh(session)
+
+    return session
+
+@router.post(
+    "/{session_id}/complete",
+    response_model=IntakeSessionResponse
+)
+def complete_session(
+    session_id: int,
+    db: Session = Depends(get_db)
+):
+    session = (
+        db.query(IntakeSession)
+        .filter(IntakeSession.id == session_id)
+        .first()
+    )
+
+    if session is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Intake session not found"
+        )
+
+    if session.status != "IN_PROGRESS":
+        raise HTTPException(
+            status_code=400,
+            detail="Session is not in progress"
+        )
+
+    session.status = "COMPLETED"
+
+    session.completed_at = db.execute(
+        text("SELECT CURRENT_TIMESTAMP")
+    ).scalar()
 
     db.commit()
     db.refresh(session)

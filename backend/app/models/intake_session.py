@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, String, DateTime
+from sqlalchemy import Column, BigInteger, String, DateTime, ForeignKey
 from sqlalchemy.sql import func
 
 from app.database.connection import Base
@@ -14,9 +14,10 @@ class IntakeSession(Base):
     )
 
     patient_id = Column(
-        BigInteger,
-        nullable=False
-    )
+    BigInteger,
+    ForeignKey("patients.id"),
+    nullable=False
+)
 
     status = Column(
         String(30),
