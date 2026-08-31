@@ -7,6 +7,7 @@ from app.api.patients import router as patients_router
 from app.api.auth import router as auth_router
 from app.api.questionnaire import router as questionnaire_router
 from app.api.doctor import router as doctor_router
+from app.api.documents import router as documents_router
 
 
 app = FastAPI(
@@ -21,6 +22,7 @@ app.include_router(sessions_router)
 app.include_router(auth_router)
 app.include_router(questionnaire_router)
 app.include_router(doctor_router)
+app.include_router(documents_router)
 
 
 @app.get("/health")
