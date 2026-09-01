@@ -16,5 +16,4 @@ Currently in development.
 - Kundan
 - Kirti
 - Satya
-- Anshika
 - Abhigya
