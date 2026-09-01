@@ -16,3 +16,7 @@ class DocumentExtractionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class DocumentExtractionUpdate(BaseModel):
+    extracted_text: str

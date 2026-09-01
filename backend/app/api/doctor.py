@@ -11,6 +11,13 @@ from app.schemas.doctor import (
     DoctorPatientResponse,
     DoctorSessionResponse,
 )
+from app.models.ai_extraction import AIExtraction
+from app.schemas.ai_extraction import (
+    AIExtractionResponse
+)
+from app.services.ai_extraction_service import (
+    extract_clinical_information
+)
 from app.schemas.doctor import (
     DoctorCaseResponse,
     DoctorPatientResponse,
@@ -199,3 +206,74 @@ def get_case_summary(
         ),
         clinical_summary=clinical_summary
     )
+
+@router.post(
+    "/sessions/{session_id}/ai-extract",
+    response_model=AIExtractionResponse
+)
+def create_ai_extraction(
+    session_id: int,
+    db: Session = Depends(get_db)
+):
+    session = (
+        db.query(IntakeSession)
+        .filter(IntakeSession.id == session_id)
+        .first()
+    )
+
+    if session is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Intake session not found"
+        )
+
+    # Get questionnaire responses
+    rows = (
+        db.query(IntakeResponse, Question)
+        .join(
+            Question,
+            Question.id == IntakeResponse.question_id
+        )
+        .filter(
+            IntakeResponse.session_id == session_id
+        )
+        .order_by(Question.display_order)
+        .all()
+    )
+
+    if not rows:
+        raise HTTPException(
+            status_code=400,
+            detail="No questionnaire responses found"
+        )
+
+    # Build source text
+    source_parts = []
+
+    for response, question in rows:
+        source_parts.append(
+            f"{question.question_text}: "
+            f"{response.answer_text or ''}"
+        )
+
+    source_text = "\n".join(source_parts)
+
+    # Run extraction
+    extracted = extract_clinical_information(
+        source_text
+    )
+
+    # Save result
+    ai_extraction = AIExtraction(
+        session_id=session_id,
+        source_text=source_text,
+        extracted_data=extracted.model_dump(),
+        extraction_status="COMPLETED",
+        model_name="local-rule-based-v1"
+    )
+
+    db.add(ai_extraction)
+    db.commit()
+    db.refresh(ai_extraction)
+
+    return ai_extraction

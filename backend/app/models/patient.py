@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Date
 from sqlalchemy.sql import func
 
 from app.database.connection import Base
@@ -10,7 +10,7 @@ class Patient(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     name = Column(String(100), nullable=False)
-    date_of_birth = Column(String(10), nullable=True)
+    date_of_birth = Column(Date, nullable=True)
     gender = Column(String(20), nullable=True)
     phone = Column(String(20), nullable=True)
     preferred_language = Column(String(50), nullable=False)

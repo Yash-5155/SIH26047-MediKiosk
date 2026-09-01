@@ -433,3 +433,30 @@ CREATE TABLE document_extractions (
 
     INDEX idx_extraction_status (extraction_status)
 );
+
+CREATE TABLE ai_extractions (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    session_id BIGINT UNSIGNED NOT NULL,
+
+    source_text LONGTEXT NULL,
+
+    extracted_data JSON NULL,
+
+    extraction_status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
+
+    model_name VARCHAR(100) NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_ai_extraction_session
+        FOREIGN KEY (session_id)
+        REFERENCES intake_sessions(id)
+        ON DELETE CASCADE,
+
+    INDEX idx_ai_extraction_session (session_id),
+    INDEX idx_ai_extraction_status (extraction_status)
+);

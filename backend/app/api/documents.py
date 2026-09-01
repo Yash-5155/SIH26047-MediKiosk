@@ -14,7 +14,12 @@ from datetime import datetime
 
 from app.models.document_extraction import DocumentExtraction
 from app.schemas.document_extraction import (
-    DocumentExtractionResponse
+    DocumentExtractionResponse,
+    DocumentExtractionUpdate,
+)
+from app.schemas.document import (
+    MedicalDocumentResponse,
+    MedicalDocumentListItem,
 )
 from app.services.ocr_service import extract_text
 
@@ -312,3 +317,151 @@ def extract_document_text(
             status_code=500,
             detail=f"Document text extraction failed: {str(e)}"
         )
+
+@router.get(
+    "/{document_id}/extraction",
+    response_model=DocumentExtractionResponse
+)
+def get_document_extraction(
+    document_id: int,
+    db: Session = Depends(get_db)
+):
+    document = (
+        db.query(MedicalDocument)
+        .filter(MedicalDocument.id == document_id)
+        .first()
+    )
+
+    if document is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Medical document not found"
+        )
+
+    extraction = (
+        db.query(DocumentExtraction)
+        .filter(
+            DocumentExtraction.document_id == document_id
+        )
+        .first()
+    )
+
+    if extraction is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Document extraction not found"
+        )
+
+    return extraction
+
+@router.put(
+    "/{document_id}/extraction",
+    response_model=DocumentExtractionResponse
+)
+def update_document_extraction(
+    document_id: int,
+    update_data: DocumentExtractionUpdate,
+    db: Session = Depends(get_db)
+):
+    document = (
+        db.query(MedicalDocument)
+        .filter(MedicalDocument.id == document_id)
+        .first()
+    )
+
+    if document is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Medical document not found"
+        )
+
+    extraction = (
+        db.query(DocumentExtraction)
+        .filter(
+            DocumentExtraction.document_id == document_id
+        )
+        .first()
+    )
+
+    if extraction is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Document extraction not found"
+        )
+
+    extraction.extracted_text = update_data.extracted_text
+
+    # Mark it as manually verified
+    extraction.extraction_status = "VERIFIED"
+    extraction.extraction_engine = "TESSERACT+MANUAL"
+
+    db.commit()
+    db.refresh(extraction)
+
+    return extraction
+
+@router.get(
+    "/patient/{patient_id}",
+    response_model=list[MedicalDocumentListItem]
+)
+def get_patient_documents(
+    patient_id: int,
+    db: Session = Depends(get_db)
+):
+    # Check patient
+    patient = (
+        db.query(Patient)
+        .filter(Patient.id == patient_id)
+        .first()
+    )
+
+    if patient is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Patient not found"
+        )
+
+    documents = (
+        db.query(MedicalDocument)
+        .filter(
+            MedicalDocument.patient_id == patient_id
+        )
+        .order_by(
+            MedicalDocument.uploaded_at.desc()
+        )
+        .all()
+    )
+
+    result = []
+
+    for document in documents:
+
+        extraction = (
+            db.query(DocumentExtraction)
+            .filter(
+                DocumentExtraction.document_id
+                == document.id
+            )
+            .first()
+        )
+
+        extraction_status = None
+
+        if extraction:
+            extraction_status = (
+                extraction.extraction_status
+            )
+
+        result.append(
+            MedicalDocumentListItem(
+                id=document.id,
+                patient_id=document.patient_id,
+                session_id=document.session_id,
+                document_type=document.document_type,
+                file_name=document.file_name,
+                uploaded_at=document.uploaded_at,
+                extraction_status=extraction_status
+            )
+        )
+
+    return result

@@ -16,3 +16,15 @@ class MedicalDocumentResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class MedicalDocumentListItem(BaseModel):
+    id: int
+    patient_id: int
+    session_id: int | None
+
+    document_type: str
+    file_name: str
+    uploaded_at: datetime
+
+    extraction_status: str | None = None
