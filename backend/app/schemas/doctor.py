@@ -1,5 +1,5 @@
 from datetime import date, datetime
-
+from app.schemas.doctor_case import DoctorCaseResponse
 from pydantic import BaseModel
 
 
@@ -13,13 +13,6 @@ class DoctorPatientResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-class DoctorCaseResponse(BaseModel):
-    question_key: str
-    question: str
-    answer: str | None = None
-    input_mode: str
 
 
 class DoctorSessionResponse(BaseModel):
