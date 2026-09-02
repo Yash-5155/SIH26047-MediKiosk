@@ -460,3 +460,7 @@ CREATE TABLE ai_extractions (
     INDEX idx_ai_extraction_session (session_id),
     INDEX idx_ai_extraction_status (extraction_status)
 );
+
+ALTER TABLE ai_extractions
+ADD COLUMN reviewed_at TIMESTAMP NULL,
+ADD COLUMN verified_at TIMESTAMP NULL;

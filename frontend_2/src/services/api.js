@@ -58,4 +58,24 @@ export const api = {
     method: "POST",
   });
   },
+  async updateAIExtraction(sessionId, extractedData) {
+  return request(`/api/doctor/sessions/${sessionId}/ai-extract`, {
+    method: "PUT",
+    body: JSON.stringify({
+      extracted_data: extractedData,
+    }),
+  });
+},
+
+async approveAIExtraction(sessionId) {
+  return request(
+    `/api/doctor/sessions/${sessionId}/ai-extract/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        status: "VERIFIED_BY_DOCTOR",
+      }),
+    }
+  );
+}
 };

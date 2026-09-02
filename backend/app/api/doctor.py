@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
+from sqlalchemy.sql import func
 from app.core.config import AI_MODEL
 from app.models.document_extraction import DocumentExtraction
 from app.models.medical_document import MedicalDocument
@@ -30,7 +30,9 @@ from app.schemas.doctor_session import (
 )
 from app.models.ai_extraction import AIExtraction
 from app.schemas.ai_extraction import (
-    AIExtractionResponse
+    AIExtractionResponse,
+    AIExtractionUpdate,
+    AIExtractionApproval,
 )
 from app.services.ai_extraction_service import (
     extract_clinical_information
@@ -603,3 +605,81 @@ def get_doctor_sessions(
         )
 
     return result
+
+@router.put(
+    "/sessions/{session_id}/ai-extract",
+    response_model=AIExtractionResponse
+)
+def update_ai_extraction(
+    session_id: int,
+    payload: AIExtractionUpdate,
+    db: Session = Depends(get_db)
+):
+    extraction = (
+        db.query(AIExtraction)
+        .filter(
+            AIExtraction.session_id == session_id
+        )
+        .order_by(
+            AIExtraction.created_at.desc()
+        )
+        .first()
+    )
+
+    if extraction is None:
+        raise HTTPException(
+            status_code=404,
+            detail="AI extraction not found"
+        )
+
+    extraction.extracted_data = (
+        payload.extracted_data.model_dump()
+    )
+
+    extraction.extraction_status = "DOCTOR_REVIEWED"
+    extraction.reviewed_at = func.now()
+
+    db.commit()
+    db.refresh(extraction)
+
+    return extraction
+
+@router.post(
+    "/sessions/{session_id}/ai-extract/approve",
+    response_model=AIExtractionResponse
+)
+def approve_ai_extraction(
+    session_id: int,
+    payload: AIExtractionApproval,
+    db: Session = Depends(get_db)
+):
+    extraction = (
+        db.query(AIExtraction)
+        .filter(
+            AIExtraction.session_id == session_id
+        )
+        .order_by(
+            AIExtraction.created_at.desc()
+        )
+        .first()
+    )
+
+    if extraction is None:
+        raise HTTPException(
+            status_code=404,
+            detail="AI extraction not found"
+        )
+
+    if payload.status != "VERIFIED_BY_DOCTOR":
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid approval status"
+        )
+
+    extraction.extraction_status = "VERIFIED_BY_DOCTOR"
+    extraction.verified_at = func.now()
+
+    db.commit()
+    db.refresh(extraction)
+
+    return extraction

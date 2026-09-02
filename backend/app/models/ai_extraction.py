@@ -63,3 +63,12 @@ class AIExtraction(Base):
         server_default=func.current_timestamp(),
         onupdate=func.current_timestamp()
     )
+    reviewed_at = Column(
+    DateTime,
+    nullable=True
+    )
+
+    verified_at = Column(
+    DateTime,
+    nullable=True
+    )
