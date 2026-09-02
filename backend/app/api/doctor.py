@@ -358,7 +358,7 @@ def create_ai_extraction(
         source_text=source_text,
         extracted_data=extracted.model_dump(),
         extraction_status="COMPLETED",
-        model_name="AI_MODEL"
+        model_name=AI_MODEL
     )
 
     db.add(ai_extraction)

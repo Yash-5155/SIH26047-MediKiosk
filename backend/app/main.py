@@ -8,6 +8,7 @@ from app.api.auth import router as auth_router
 from app.api.questionnaire import router as questionnaire_router
 from app.api.doctor import router as doctor_router
 from app.api.documents import router as documents_router
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI(
@@ -15,7 +16,16 @@ app = FastAPI(
     description="Backend API for SIH26047 MediKiosk",
     version="0.1.0"
 )
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(patients_router)
 app.include_router(sessions_router)

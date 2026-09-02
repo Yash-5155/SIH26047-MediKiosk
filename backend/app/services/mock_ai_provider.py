@@ -1,8 +1,6 @@
 import re
 
-from app.schemas.ai_extraction import (
-    AIClinicalExtraction
-)
+from app.schemas.ai_extraction import AIClinicalExtraction
 
 
 def extract_clinical_information(
@@ -32,6 +30,7 @@ def extract_clinical_information(
         if symptom in text_lower:
             symptoms.append(symptom)
 
+    # Duration
     duration = None
 
     duration_match = re.search(
@@ -42,6 +41,7 @@ def extract_clinical_information(
     if duration_match:
         duration = duration_match.group(0)
 
+    # Severity
     severity = None
 
     if "severe" in text_lower:
@@ -51,6 +51,7 @@ def extract_clinical_information(
     elif "mild" in text_lower:
         severity = "MILD"
 
+    # Fever
     fever = None
 
     if "no fever" in text_lower:
@@ -63,5 +64,4 @@ def extract_clinical_information(
         duration=duration,
         severity=severity,
         fever=fever,
-        additional_information=text
     )

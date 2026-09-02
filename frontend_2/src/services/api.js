@@ -51,6 +51,11 @@ export const api = {
     return request(
       `/api/doctor/sessions/${sessionId}/case`
     );
-  }
+  },
 
+  async generateAIExtraction(sessionId) {
+  return request(`/api/doctor/sessions/${sessionId}/ai-extract`, {
+    method: "POST",
+  });
+  },
 };

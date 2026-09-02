@@ -5,9 +5,7 @@ from app.services.mock_ai_provider import (
 )
 
 
-def extract_clinical_information(
-    text: str
-):
+def extract_clinical_information(text: str):
     if AI_PROVIDER == "mock":
         return mock_extract(text)
 
