@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediKiosk - Self-Service Health Check</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="kiosk-header">
+    <div class="brand-group">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-title-wrap">
+          <span class="brand-title">MediKiosk</span>
+          <span class="badge-version">2.0 MVP</span>
+        </div>
+        <span class="brand-subtitle">Self-Service Health Check</span>
+      </div>
+    </div>
+
+    <nav class="nav-actions">
+      <!-- 1. Touch Mode / Fullscreen -->
+      <button class="nav-pill-btn" id="btnNavTouch" type="button" title="Toggle Fullscreen Kiosk Mode">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+        <span class="nav-btn-text">Touch Mode</span>
+      </button>
+
+      <!-- 2. Language Switcher -->
+      <button class="nav-pill-btn" id="btnNavLang" type="button" title="Toggle Language">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span class="nav-btn-text" id="navLangText">English</span> 
+        <span class="badge-lang" id="navLangBadge">EN</span>
+      </button>
+
+      <!-- 3. Accessibility / High Contrast -->
+      <button class="nav-pill-btn" id="btnNavAccess" type="button" title="Toggle High Contrast">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
+        <span class="nav-btn-text">Accessibility</span>
+      </button>
+
+      <!-- 4. Help & Assist -->
+      <button class="nav-pill-btn" id="btnNavHelp" type="button" title="Get Help">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span class="nav-btn-text">Help</span>
+      </button>
+
+      <!-- 5. Staff Portal -->
+      <button class="nav-pill-btn" id="btnNavStaff" type="button" title="Staff Portal">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="nav-btn-text">Staff</span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- 2. MAIN APP CONTAINER (Holds All Tabs)     -->
+  <!-- ========================================== -->
+  <main class="kiosk-container">
+
+    <!-- ---------------------------------------- -->
+    <!-- TAB 1: IDLE / WELCOME (Default Active)   -->
+    <!-- ---------------------------------------- -->
+    <section id="tab-idle" class="kiosk-tab active-tab">
+      <div class="hero-card">
+        <div class="hero-left">
+          <div class="pill-tag triage-tag">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            <span>Fast & Friendly Self-Service Triage</span>
+          </div>
+
+          <h1 class="hero-heading">Your health. Your first step.</h1>
+          <p class="hero-description">
+            Answer a few simple questions to help us understand your symptoms and guide you to the right care.
+          </p>
+
+          <div class="feature-pills-group">
+            <div class="pill-tag feature-tag">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              <span>Private & Secure</span>
+            </div>
+            <div class="pill-tag feature-tag">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+                <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+              </svg>
+              <span>Nurse Assisted</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <div class="graphic-badge badge-top">
+            <span class="status-dot"></span>
+            <span>Quick ~2 Min Check</span>
+          </div>
+
+          <div class="graphic-card">
+            <div class="icon-bubble">
+              <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/>
+                <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/>
+                <circle cx="20" cy="10" r="2"/>
+              </svg>
+            </div>
+            <div class="graphic-text">
+              <strong>Smart Triage</strong>
+              <span>Instant Desk Guidance</span>
+            </div>
+          </div>
+
+          <div class="graphic-badge badge-bottom">
+            <span class="status-dot dot-red"></span>
+            <span>No Long Forms</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="cta-action-group">
+        <button class="btn btn-primary" id="btnStart" type="button">
+          <span>Start Health Check</span>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+
+        <button class="btn btn-secondary" id="btnHelp" type="button">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>How does this work?</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------- -->
+    <!-- TAB 2: LANGUAGE SELECTION                -->
+    <!-- ---------------------------------------- -->
+    <section id="tab-language" class="kiosk-tab">
+      <div class="tab-header-center">
+        <div class="icon-bubble-soft">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </div>
+        <h1 class="tab-main-title">Welcome to MediKiosk</h1>
+        <p class="tab-main-desc">Choose your preferred language to begin your health check</p>
+      </div>
+
+      <div class="language-grid">
+        <!-- English -->
+        <div class="lang-card selected" data-lang="en">
+          <div class="lang-card-top">
+            <span class="country-code">GB</span>
+            <div class="check-badge">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#FFFFFF" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+          </div>
+          <div class="lang-card-body">
+            <strong class="lang-name">English <span class="lang-sub">(English)</span></strong>
+            <span class="lang-hint">Select English to proceed</span>
+          </div>
+        </div>
+
+        <!-- Hindi -->
+        <div class="lang-card" data-lang="hi">
+          <div class="lang-card-top">
+            <span class="country-code">IN</span>
+            <div class="check-badge">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#FFFFFF" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+          </div>
+          <div class="lang-card-body">
+            <strong class="lang-name">हिन्दी <span class="lang-sub">(Hindi)</span></strong>
+            <span class="lang-hint">आगे बढ़ने के लिए हिन्दी चुनें</span>
+          </div>
+        </div>
+
+        <!-- Tamil -->
+        <div class="lang-card disabled" data-lang="ta">
+          <div class="lang-card-top">
+            <span class="country-code">IN</span>
+          </div>
+          <div class="lang-card-body">
+            <strong class="lang-name">தமிழ் <span class="lang-sub">(Tamil)</span></strong>
+            <span class="lang-hint">Coming soon / जल्द उपलब्ध</span>
+          </div>
+        </div>
+
+        <!-- Bengali -->
+        <div class="lang-card disabled" data-lang="bn">
+          <div class="lang-card-top">
+            <span class="country-code">IN</span>
+          </div>
+          <div class="lang-card-body">
+            <strong class="lang-name">বাংলা <span class="lang-sub">(Bengali)</span></strong>
+            <span class="lang-hint">Coming soon / जल्द उपलब्ध</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-action-group">
+        <button class="btn btn-primary" id="btnContinueLang" type="button">
+          <span>Continue</span>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------- -->
+    <!-- TAB 3: PATIENT IDENTIFICATION / LOGIN    -->
+    <!-- ---------------------------------------- -->
+    <section id="tab-identify" class="kiosk-tab">
+      <div class="tab-header-center">
+        <div class="icon-bubble-soft">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <h1 class="tab-main-title">Patient Identification</h1>
+        <p class="tab-main-desc">Select an option to proceed with your clinical intake</p>
+      </div>
+
+      <div class="id-options-grid">
+        <div class="id-type-card active" id="cardExistingPatient">
+          <div class="id-card-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="16" rx="3"/>
+              <circle cx="9" cy="10" r="2"/>
+              <path d="M15 8h2M15 12h2M7 16h10"/>
+            </svg>
+          </div>
+          <div class="id-card-content">
+            <strong class="id-card-title">Existing Patient</strong>
+            <span class="id-card-sub">Check in using ABHA / Health ID</span>
+          </div>
+          <div class="radio-indicator"></div>
+        </div>
+
+        <div class="id-type-card" id="cardNewPatient">
+          <div class="id-card-icon">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="8.5" cy="7" r="4"/>
+              <line x1="20" y1="8" x2="20" y2="14"/>
+              <line x1="23" y1="11" x2="17" y2="11"/>
+            </svg>
+          </div>
+          <div class="id-card-content">
+            <strong class="id-card-title">New Patient</strong>
+            <span class="id-card-sub">First time visit / Create profile</span>
+          </div>
+          <div class="radio-indicator"></div>
+        </div>
+      </div>
+
+      <!-- Existing Patient Sub-panel -->
+      <div class="id-subpanel" id="panelExisting">
+        <div class="input-field-group">
+          <label class="input-label" for="inputPatientId">ABHA ID or National Health ID</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" class="input-icon">
+              <rect x="3" y="4" width="18" height="16" rx="3"/>
+              <circle cx="8" cy="10" r="2"/>
+              <path d="M14 10h4M14 14h4"/>
+            </svg>
+            <input 
+              type="text" 
+              id="inputPatientId" 
+              class="kiosk-input" 
+              placeholder="Enter 14-digit ABHA ID (e.g. 12-3456-7890-1234)" 
+              maxlength="17"
+              inputmode="numeric"
+            >
+          </div>
+          <span class="input-help-text">For prototype testing, enter any valid format number.</span>
+        </div>
+
+        <div class="cta-action-group">
+          <button class="btn btn-primary" id="btnVerifyExisting" type="button">
+            <span>Verify & Continue</span>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- New Patient Sub-panel -->
+      <div class="id-subpanel" id="panelNew" style="display: none;">
+        <div class="info-banner-card">
+          <div class="banner-icon">ℹ️</div>
+          <div class="banner-text">
+            <strong>New Patient Registration</strong>
+            <p>We will collect your basic profile details (Name, Age, Gender, and Contact) on the next screen.</p>
+          </div>
+        </div>
+
+        <div class="cta-action-group">
+          <button class="btn btn-primary" id="btnGoToRegister" type="button">
+            <span>Proceed to Registration</span>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- 3. BOTTOM GLOBAL FOOTER (Fixed Outside)    -->
+  <!-- ========================================== -->
+  <footer class="kiosk-footer">
+    <div class="footer-alert-card">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-text">
+        In severe medical emergencies, inform staff immediately or call <strong>112</strong>.
+      </div>
+    </div>
+
+    <div class="footer-note">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+      <span>MediKiosk does not store permanent patient records. All data is for queue triage only.</span>
+    </div>
+    <!-- ========================================== -->
+    <!-- TAB 4: NEW PATIENT REGISTRATION FORM       -->
+    <!-- ========================================== -->
+    <section id="tab-registration" class="kiosk-tab">
+      
+      <!-- Top Bar with Back Navigation -->
+      <div class="tab-top-nav">
+        <button type="button" class="btn-back" data-back-to="tab-identify">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span>Back</span>
+        </button>
+        <span class="step-indicator">Step 3 of 4: Registration</span>
+      </div>
+
+      <div class="tab-header-center">
+        <div class="icon-bubble-soft">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="8.5" cy="7" r="4"/>
+            <line x1="20" y1="8" x2="20" y2="14"/>
+            <line x1="23" y1="11" x2="17" y2="11"/>
+          </svg>
+        </div>
+        <h1 class="tab-main-title">New Patient Registration</h1>
+        <p class="tab-main-desc">Enter your basic demographics to generate your triage token</p>
+      </div>
+
+      <!-- Registration Form Container -->
+      <form id="formRegistration" class="registration-form" onsubmit="return false;">
+        
+        <!-- Full Name -->
+        <div class="input-field-group">
+          <label class="input-label" for="regFullName">Full Name *</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" class="input-icon">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            <input type="text" id="regFullName" class="kiosk-input" placeholder="e.g. Satya Pandey" required>
+          </div>
+        </div>
+
+        <!-- Age & Gender Grid -->
+        <div class="form-row-2col">
+          <!-- Age -->
+          <div class="input-field-group">
+            <label class="input-label" for="regAge">Age (Years) *</label>
+            <div class="input-wrapper">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" class="input-icon">
+                <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+              </svg>
+              <input type="number" id="regAge" class="kiosk-input" placeholder="Age" min="1" max="120" inputmode="numeric" required>
+            </div>
+          </div>
+
+          <!-- Gender Touch Pills -->
+          <div class="input-field-group">
+            <label class="input-label">Gender *</label>
+            <div class="gender-pill-group">
+              <button type="button" class="gender-pill active" data-gender="Male">Male</button>
+              <button type="button" class="gender-pill" data-gender="Female">Female</button>
+              <button type="button" class="gender-pill" data-gender="Other">Other</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Phone Number -->
+        <div class="input-field-group">
+          <label class="input-label" for="regPhone">Mobile Phone Number *</label>
+          <div class="input-wrapper phone-prefix-wrapper">
+            <span class="phone-country-code">+91</span>
+            <input type="tel" id="regPhone" class="kiosk-input phone-input" placeholder="10-digit mobile number" maxlength="10" inputmode="numeric" required>
+          </div>
+          <span class="input-help-text">Used to send token number and digital prescription via SMS.</span>
+        </div>
+
+        <!-- Address / District (Optional Demographics) -->
+        <div class="input-field-group">
+          <label class="input-label" for="regAddress">City / District (Optional)</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" class="input-icon">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+            <input type="text" id="regAddress" class="kiosk-input" placeholder="e.g. Lucknow">
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="cta-action-group form-submit-group">
+          <button class="btn btn-primary" id="btnSubmitRegistration" type="button">
+            <span>Proceed to Consent</span>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+
+      </form>
+
+    </section>
+<!-- ========================================== -->
+    <!-- TAB 5: CONSENT & DATA PRIVACY SCREEN       -->
+    <!-- ========================================== -->
+    <section id="tab-consent" class="kiosk-tab">
+      
+      <!-- Top Navigation -->
+      <div class="tab-top-nav">
+        <button type="button" class="btn-back">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span>Back</span>
+        </button>
+        <span class="step-indicator">Step 4 of 4: Consent</span>
+      </div>
+
+      <!-- Center Header -->
+      <div class="tab-header-center">
+        <div class="icon-bubble-soft">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <h1 class="tab-main-title">Consent & Data Privacy</h1>
+        <p class="tab-main-desc">Please review how MediKiosk processes your health information</p>
+      </div>
+
+      <!-- Audio Guidance Pill -->
+      <div class="audio-assist-card" id="btnAudioConsent">
+        <div class="audio-icon-pulse">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          </svg>
+        </div>
+        <div class="audio-text">
+          <strong>Listen to Consent (Audio Guidance)</strong>
+          <span id="audioStatusText">Tap to play spoken explanation in your selected language</span>
+        </div>
+      </div>
+
+      <!-- Consent Breakdown Container -->
+      <div class="consent-summary-card">
+        
+        <div class="consent-item">
+          <div class="consent-item-icon">🎙️</div>
+          <div class="consent-item-content">
+            <strong>Voice & Symptom Documentation</strong>
+            <p>Your spoken responses and typed complaints will be converted into structured medical notes for your doctor.</p>
+          </div>
+        </div>
+
+        <div class="consent-item">
+          <div class="consent-item-icon">📄</div>
+          <div class="consent-item-content">
+            <strong>Medical Document Digitization</strong>
+            <p>Uploaded prescriptions, test reports, and discharge summaries will be scanned to reconstruct your timeline.</p>
+          </div>
+        </div>
+
+        <div class="consent-item">
+          <div class="consent-item-icon">🩺</div>
+          <div class="consent-item-content">
+            <strong>Physician Review Required</strong>
+            <p>MediKiosk does not autonomously diagnose or prescribe. Your doctor will review, edit, and confirm all records.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bulletproof Affirmative Check Card -->
+      <label class="consent-checkbox-card" id="consentCheckCard" for="consentCheckboxInput">
+        <input type="checkbox" id="consentCheckboxInput" class="kiosk-native-checkbox">
+        <span class="custom-checkbox">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+        </span>
+        <span class="checkbox-label" data-i18n="consent_statement">
+          I understand how my information will be collected and agree to proceed with this AI-assisted clinical intake.
+        </span>
+      </label>
+      <!-- Action Buttons -->
+      <div class="cta-action-group">
+        <button class="btn btn-primary" id="btnAcceptConsent" type="button" disabled>
+          <span>Accept & Begin Intake</span>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+
+        <button class="btn btn-secondary" id="btnDeclineConsent" type="button">
+          <span>Decline / Speak with Staff</span>
+        </button>
+      </div>
+
+    </section>
+    <div class="footer-location">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span>Main Entrance — Triage Hub (KIOSK-MAIN-01)</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
