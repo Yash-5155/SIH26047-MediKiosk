@@ -1,0 +1,1233 @@
+/* ==========================================================================
+   1. GLOBAL VARIABLES & RESET
+   ========================================================================== */
+:root {
+  --bg-app: #FAF8F5;
+  --bg-card: #FFFFFF;
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+  
+  --primary-coral: #E05344;
+  --primary-coral-hover: #CC4537;
+  --primary-coral-soft: #FDF2F0;
+  
+  --border-light: #E2E8F0;
+  --border-tag: #E8ECEF;
+  
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 12px 28px rgba(0, 0, 0, 0.06);
+  --shadow-btn: 0 10px 20px -5px rgba(224, 83, 68, 0.38);
+
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none; /* Prevents text selection on kiosk touchscreens */
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   2. TOP GLOBAL HEADER
+   ========================================================================== */
+.kiosk-header {
+  height: 76px;
+  padding: 0 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: transparent;
+}
+
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.brand-logo {
+  width: 44px;
+  height: 44px;
+  background-color: var(--primary-coral);
+  color: #FFFFFF;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 10px rgba(224, 83, 68, 0.25);
+}
+
+.brand-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brand-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.badge-version {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--primary-coral);
+  background-color: var(--primary-coral-soft);
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(224, 83, 68, 0.2);
+}
+
+.brand-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.nav-pill-btn:hover {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+}
+
+.badge-lang {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 4px;
+  background-color: #F1F5F9;
+  border-radius: 4px;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   3. SPA TAB SWITCHING ENGINE & MAIN CONTAINER
+   ========================================================================== */
+.kiosk-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.kiosk-tab {
+  display: none;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  animation: tabFadeIn 0.22s ease-in-out forwards;
+}
+
+.kiosk-tab.active-tab {
+  display: flex;
+}
+
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Common Section Headers */
+.tab-header-center {
+  text-align: center;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.icon-bubble-soft {
+  width: 58px;
+  height: 58px;
+  background-color: var(--primary-coral-soft);
+  color: var(--primary-coral);
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(224, 83, 68, 0.15);
+}
+
+.tab-main-title {
+  font-size: 2.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.4rem;
+}
+
+.tab-main-desc {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   4. TAB 1: IDLE / WELCOME SCREEN
+   ========================================================================== */
+.hero-card {
+  width: 100%;
+  background: linear-gradient(135deg, #FFFFFF 0%, #FAFBFD 60%, #F5F3FF 100%);
+  border: 1px solid var(--border-light);
+  border-radius: 24px;
+  padding: 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 2rem;
+}
+
+.hero-left {
+  max-width: 58%;
+}
+
+.pill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid var(--border-tag);
+  background-color: #FFFFFF;
+}
+
+.triage-tag {
+  color: var(--primary-coral);
+  border-color: rgba(224, 83, 68, 0.2);
+  background-color: var(--primary-coral-soft);
+  margin-bottom: 1.25rem;
+}
+
+.hero-heading {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+
+.hero-description {
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-bottom: 1.75rem;
+}
+
+.feature-pills-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.feature-tag {
+  color: var(--text-secondary);
+}
+
+/* Hero Right Visuals */
+.hero-right {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 240px;
+}
+
+.graphic-card {
+  width: 170px;
+  height: 170px;
+  background-color: #FFFFFF;
+  border-radius: 24px;
+  border: 1px solid var(--border-light);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.25rem;
+}
+
+.icon-bubble {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(145deg, #FF6B59, #E05344);
+  color: #FFFFFF;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 8px 16px rgba(224, 83, 68, 0.3);
+}
+
+.graphic-text strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.graphic-text span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.graphic-badge {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: 50px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.badge-top {
+  top: -10px;
+  left: 10px;
+}
+
+.badge-bottom {
+  bottom: -10px;
+  right: 15px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10B981;
+}
+
+.dot-red {
+  background-color: var(--primary-coral);
+}
+
+/* ==========================================================================
+   5. TAB 2: LANGUAGE SELECTION GRID
+   ========================================================================== */
+.language-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 680px;
+  margin-bottom: 2.25rem;
+}
+
+.lang-card {
+  background-color: var(--bg-card);
+  border: 2px solid var(--border-light);
+  border-radius: 20px;
+  padding: 1.4rem 1.5rem;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 120px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s ease-in-out;
+}
+
+.lang-card:hover:not(.disabled) {
+  border-color: #CBD5E1;
+  transform: translateY(-2px);
+}
+
+.lang-card.selected {
+  border-color: var(--primary-coral);
+  box-shadow: 0 0 0 1px var(--primary-coral), 0 8px 20px rgba(224, 83, 68, 0.08);
+}
+
+.lang-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.country-code {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.check-badge {
+  width: 22px;
+  height: 22px;
+  background-color: var(--primary-coral);
+  border-radius: 50%;
+  display: none;
+  place-items: center;
+}
+
+.lang-card.selected .check-badge {
+  display: grid;
+}
+
+.lang-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.lang-sub {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.lang-hint {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+.lang-card.disabled {
+  opacity: 0.5;
+  background-color: #F8FAFC;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   6. TAB 3: IDENTIFICATION SELECTOR & INPUTS
+   ========================================================================== */
+.id-options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 680px;
+  margin-bottom: 2rem;
+}
+
+.id-type-card {
+  background-color: var(--bg-card);
+  border: 2px solid var(--border-light);
+  border-radius: 20px;
+  padding: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s ease-in-out;
+}
+
+.id-type-card:hover {
+  border-color: #CBD5E1;
+  transform: translateY(-2px);
+}
+
+.id-type-card.active {
+  border-color: var(--primary-coral);
+  box-shadow: 0 0 0 1px var(--primary-coral), 0 8px 20px rgba(224, 83, 68, 0.08);
+}
+
+.id-card-icon {
+  width: 50px;
+  height: 50px;
+  background-color: var(--primary-coral-soft);
+  color: var(--primary-coral);
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.id-card-content {
+  flex-grow: 1;
+}
+
+.id-card-title {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.id-card-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.radio-indicator {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border-light);
+  background-color: #FFFFFF;
+  flex-shrink: 0;
+}
+
+.id-type-card.active .radio-indicator {
+  border-color: var(--primary-coral);
+  background-color: var(--primary-coral);
+  box-shadow: inset 0 0 0 4px #FFFFFF;
+}
+
+/* Sub-Panels */
+.id-subpanel {
+  width: 100%;
+  max-width: 540px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input-field-group {
+  width: 100%;
+  margin-bottom: 1.75rem;
+}
+
+.input-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.6rem;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.kiosk-input {
+  width: 100%;
+  height: 56px;
+  padding: 0 1rem 0 3rem;
+  font-size: 1.05rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  background-color: #FFFFFF;
+  border: 1.5px solid var(--border-light);
+  border-radius: 12px;
+  outline: none;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kiosk-input:focus {
+  border-color: var(--primary-coral);
+  box-shadow: 0 0 0 3px rgba(224, 83, 68, 0.15);
+}
+
+.input-help-text {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.45rem;
+}
+
+.info-banner-card {
+  width: 100%;
+  background-color: #F1F5F9;
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.banner-icon {
+  font-size: 1.3rem;
+}
+
+.banner-text strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.banner-text p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   7. CALL TO ACTION BUTTONS
+   ========================================================================== */
+.cta-action-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  max-width: 440px;
+}
+
+.btn {
+  width: 100%;
+  height: 58px;
+  border-radius: 14px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background-color: var(--primary-coral);
+  color: #FFFFFF;
+  border: none;
+  box-shadow: var(--shadow-btn);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-coral-hover);
+}
+
+.btn-secondary {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:hover {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+}
+
+/* ==========================================================================
+   8. BOTTOM GLOBAL FOOTER
+   ========================================================================== */
+.kiosk-footer {
+  padding: 1.5rem 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  gap: 1rem;
+}
+
+.footer-alert-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #FEF3C7;
+  color: #92400E;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid #FDE68A;
+  font-size: 0.75rem;
+}
+
+.footer-note, .footer-location {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ==========================================================================
+   9. RESPONSIVE BREAKPOINTS
+   ========================================================================== */
+@media (max-width: 768px) {
+  .hero-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 2rem;
+  }
+  .hero-left {
+    max-width: 100%;
+  }
+  .feature-pills-group {
+    justify-content: center;
+  }
+  .language-grid, .id-options-grid {
+    grid-template-columns: 1fr;
+  }
+  .kiosk-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+/* ==========================================================================
+   TAB TOP NAVIGATION & BACK BUTTON
+   ========================================================================== */
+.tab-top-nav {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.95rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--border-light);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-back:hover {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+  color: var(--text-primary);
+}
+
+.step-indicator {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   TAB 4: REGISTRATION FORM STYLES
+   ========================================================================== */
+.registration-form {
+  width: 100%;
+  max-width: 680px;
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--border-light);
+  border-radius: 24px;
+  padding: 2.25rem 2.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+/* Gender Touch Pills */
+.gender-pill-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  height: 56px;
+}
+
+.gender-pill {
+  height: 100%;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-light);
+  background-color: #FFFFFF;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.gender-pill:hover {
+  border-color: #CBD5E1;
+}
+
+.gender-pill.active {
+  border-color: var(--primary-coral);
+  background-color: var(--primary-coral-soft);
+  color: var(--primary-coral);
+}
+
+/* Mobile Input with +91 Prefix */
+.phone-prefix-wrapper {
+  position: relative;
+}
+
+.phone-country-code {
+  position: absolute;
+  left: 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.phone-input {
+  padding-left: 3.5rem !important;
+}
+
+.form-submit-group {
+  max-width: 100% !important;
+  margin-top: 1.5rem;
+}
+
+/* ==========================================================================
+   TRUE TOUCH MODE (EXPANDED HITBOXES FOR KIOSK MONITORS & PHONES)
+   ========================================================================== */
+body.touch-mode .btn {
+  height: 68px !important;
+  font-size: 1.15rem !important;
+  border-radius: 18px;
+}
+
+body.touch-mode .kiosk-input {
+  height: 64px !important;
+  font-size: 1.15rem !important;
+}
+
+body.touch-mode .lang-card,
+body.touch-mode .id-type-card {
+  padding: 1.75rem 1.5rem !important;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY: TRUE HIGH-CONTRAST MODE
+   ========================================================================== */
+body.high-contrast {
+  --bg-app: #000000;
+  --bg-card: #121826;
+  --text-primary: #FFFFFF;
+  --text-secondary: #F1F5F9;
+  --text-muted: #CBD5E1;
+  --border-light: #475569;
+  --primary-coral: #FBBF24; /* Amber-yellow for maximum visual contrast */
+  --primary-coral-hover: #F59E0B;
+  --primary-coral-soft: #1E293B;
+  font-size: 118%;
+}
+
+body.high-contrast .hero-card,
+body.high-contrast .registration-form,
+body.high-contrast .consent-summary-card {
+  border: 2px solid #FBBF24 !important;
+  background: #0B0F19 !important;
+}
+
+body.high-contrast .btn-primary {
+  background-color: #FBBF24 !important;
+  color: #000000 !important;
+  font-weight: 800;
+}
+
+/* ==========================================================================
+   BULLETPROOF CHECKBOX STYLES
+   ========================================================================== */
+.kiosk-native-checkbox {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.consent-checkbox-card {
+  width: 100%;
+  max-width: 680px;
+  background-color: #F8FAFC;
+  border: 2px solid var(--border-light);
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  margin-bottom: 1.75rem;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.consent-checkbox-card:hover {
+  border-color: #CBD5E1;
+}
+
+.consent-checkbox-card.checked {
+  border-color: var(--primary-coral);
+  background-color: var(--primary-coral-soft);
+}
+
+.custom-checkbox {
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--border-light);
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.custom-checkbox .check-icon {
+  display: none;
+}
+
+.consent-checkbox-card.checked .custom-checkbox {
+  background-color: var(--primary-coral);
+  border-color: var(--primary-coral);
+}
+
+.consent-checkbox-card.checked .custom-checkbox .check-icon {
+  display: block;
+}
+
+.checkbox-label {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+/* Mobile Responsiveness Improvements */
+@media (max-width: 640px) {
+  .kiosk-header {
+    padding: 0.75rem 1rem;
+  }
+  .nav-btn-text {
+    display: none;
+  }
+  .nav-pill-btn {
+    padding: 0.5rem 0.65rem;
+  }
+  .hero-heading {
+    font-size: 1.75rem !important;
+  }
+  .hero-card {
+    padding: 1.5rem !important;
+  }
+  .gender-pill-group {
+    height: auto;
+    grid-template-columns: 1fr;
+  }
+  .gender-pill {
+    padding: 0.75rem;
+  }
+}
+/* ==========================================================================
+   TAB 5: CONSENT & DATA PRIVACY STYLES
+   ========================================================================== */
+.audio-assist-card {
+  width: 100%;
+  max-width: 680px;
+  background-color: var(--primary-coral-soft);
+  border: 1.5px solid rgba(224, 83, 68, 0.25);
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  margin-bottom: 1.25rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.audio-assist-card:hover {
+  background-color: #FCE8E5;
+  border-color: var(--primary-coral);
+}
+
+.audio-icon-pulse {
+  width: 44px;
+  height: 44px;
+  background-color: var(--primary-coral);
+  color: #FFFFFF;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.audio-text strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.audio-text span {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Consent Summary Card */
+.consent-summary-card {
+  width: 100%;
+  max-width: 680px;
+  background-color: var(--bg-card);
+  border: 1.5px solid var(--border-light);
+  border-radius: 20px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.25rem;
+}
+
+.consent-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.consent-item-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.consent-item-content strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.consent-item-content p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+/* Affirmative Checkbox Card */
+.consent-checkbox-card {
+  width: 100%;
+  max-width: 680px;
+  background-color: #F8FAFC;
+  border: 1.5px solid var(--border-light);
+  border-radius: 16px;
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  margin-bottom: 1.75rem;
+  transition: all 0.15s ease;
+}
+
+.consent-checkbox-card:hover {
+  border-color: #CBD5E1;
+}
+
+.consent-checkbox-card.checked {
+  border-color: var(--primary-coral);
+  background-color: var(--primary-coral-soft);
+}
+
+.custom-checkbox {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border-light);
+  border-radius: 6px;
+  background-color: #FFFFFF;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.check-icon {
+  display: none;
+}
+
+.consent-checkbox-card.checked .custom-checkbox {
+  background-color: var(--primary-coral);
+  border-color: var(--primary-coral);
+}
+
+.consent-checkbox-card.checked .check-icon {
+  display: block;
+}
+
+.checkbox-label {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+/* Disabled State for CTA */
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+/* ==========================================================================
+   ACCESSIBILITY MODE (TOGGLED BY NAVBAR)
+   ========================================================================== */
+body.high-contrast {
+  --bg-app: #0F172A;
+  --bg-card: #1E293B;
+  --text-primary: #F8FAFC;
+  --text-secondary: #E2E8F0;
+  --text-muted: #94A3B8;
+  --border-light: #334155;
+  font-size: 110%;
+}
+
+body.high-contrast .hero-card {
+  background: #1E293B !important;
+}
+
+body.high-contrast .kiosk-input {
+  background-color: #0F172A;
+  color: #FFFFFF;
+  border-color: #475569;
+}
+
+/* ==========================================================================
+   MOBILE & TOUCHSCREEN RESPONSIVENESS (< 768px and < 480px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .kiosk-header {
+    height: auto;
+    padding: 0.85rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .nav-actions {
+    width: 100%;
+    justify-content: space-between;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+  }
+
+  .nav-pill-btn {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.78rem;
+  }
+
+  .kiosk-container {
+    padding: 0.75rem 1rem 1.5rem;
+  }
+
+  .hero-card {
+    flex-direction: column;
+    padding: 1.5rem;
+    gap: 1.5rem;
+    text-align: left;
+  }
+
+  .hero-left {
+    max-width: 100%;
+  }
+
+  .hero-heading {
+    font-size: 1.75rem;
+  }
+
+  .hero-right {
+    min-width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .language-grid,
+  .id-options-grid,
+  .form-row-2col {
+    grid-template-columns: 1fr !important;
+  }
+
+  .registration-form,
+  .consent-summary-card,
+  .audio-assist-card {
+    padding: 1.25rem;
+  }
+
+  .kiosk-footer {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* On very small phones, collapse navbar text and show only icons */
+  .nav-btn-text {
+    display: none;
+  }
+
+  .nav-pill-btn {
+    padding: 0.55rem;
+  }
+
+  .brand-subtitle {
+    display: none;
+  }
+
+  .btn {
+    height: 52px;
+    font-size: 0.95rem;
+  }
+}
