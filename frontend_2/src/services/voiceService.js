@@ -49,7 +49,10 @@ class VoiceService {
         for (let i = event.resultIndex; i < event.results.length; i++) {
           transcript += event.results[i][0].transcript;
         }
-        if (onResult) onResult(transcript, event.results[0].isFinal);
+        if (onResult) {
+          const isFinal = event.results[event.results.length - 1].isFinal;
+          onResult(transcript, isFinal);
+        }
       };
 
       this.recognition.onerror = (event) => {

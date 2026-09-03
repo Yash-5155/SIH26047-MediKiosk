@@ -27,8 +27,14 @@ export function ConversationalAI() {
   const totalQuestions = QUESTIONS.length;
   const isHindi = language === 'hi';
 
-  const questionText = isHindi ? currentQ.textHi : currentQ.textEn;
+  const questionText = isHindi
+  ? currentQ.question_text_hi
+  : currentQ.question_text_en;
+
+  const questionType = currentQ.question_type;
+
   const currentAnswer = answers[currentQ.id];
+
 
   // Auto read question aloud if voice mode active or speaker pressed
   const handleSpeakQuestion = () => {
@@ -66,37 +72,172 @@ export function ConversationalAI() {
   };
 
   // Basic string match for voice answers
-  const matchVoiceAnswer = (recognizedText) => {
-    const textLower = recognizedText.toLowerCase();
-    
-    // Check Yes/No
-    if (currentQ.type === 'yes_no') {
-      if (textLower.includes('yes') || textLower.includes('haan') || textLower.includes('हां')) {
-        handleSelectOption('yes');
-      } else if (textLower.includes('no') || textLower.includes('nahi') || textLower.includes('नहीं')) {
-        handleSelectOption('no');
+ const matchVoiceAnswer = (recognizedText) => {
+  const text = recognizedText.toLowerCase().trim();
+
+  // -------------------------
+  // YES / NO QUESTIONS
+  // -------------------------
+  if (currentQ.question_type === 'YES_NO') {
+
+    const yesWords = [
+      'yes',
+      'yeah',
+      'yep',
+      'haan',
+      'han',
+      'हां',
+      'हाँ',
+      'जी',
+      'जी हाँ',
+      'जी हां'
+    ];
+
+    const noWords = [
+      'no',
+      'nope',
+      'nah',
+      'nahi',
+      'nahin',
+      'नहीं',
+      'नही'
+    ];
+
+    if (yesWords.some(word => text.includes(word))) {
+      const option = currentQ.options.find(
+        opt => opt.option_value === 'YES'
+      );
+
+      if (option) {
+        handleSelectOption(option.id);
       }
+
+      return;
     }
-  };
+
+    if (noWords.some(word => text.includes(word))) {
+      const option = currentQ.options.find(
+        opt => opt.option_value === 'NO'
+      );
+
+      if (option) {
+        handleSelectOption(option.id);
+      }
+
+      return;
+    }
+  }
+
+  // -------------------------
+  // SCALE QUESTIONS
+  // -------------------------
+  if (currentQ.question_type === 'SCALE') {
+
+    const matchedOption = currentQ.options.find(option => {
+
+      const value =
+        option.option_value?.toLowerCase() || '';
+
+      const english =
+        option.option_label_en?.toLowerCase() || '';
+
+      const hindi =
+        option.option_label_hi?.toLowerCase() || '';
+
+      return (
+        text.includes(value) ||
+        text.includes(english) ||
+        text.includes(hindi)
+      );
+    });
+
+    if (matchedOption) {
+      handleSelectOption(matchedOption.id);
+    }
+
+    return;
+  }
+
+  // -------------------------
+  // CHOICE / DURATION QUESTIONS
+  // -------------------------
+  if (
+    currentQ.question_type === 'SINGLE_CHOICE' ||
+    currentQ.question_type === 'MULTIPLE_CHOICE' ||
+    currentQ.question_type === 'DURATION'
+  ) {
+
+    const matchedOption = currentQ.options.find(option => {
+
+      const value =
+        option.option_value?.toLowerCase() || '';
+
+      const english =
+        option.option_label_en?.toLowerCase() || '';
+
+      const hindi =
+        option.option_label_hi?.toLowerCase() || '';
+
+      return (
+        text.includes(value) ||
+        text.includes(english) ||
+        text.includes(hindi)
+      );
+    });
+
+    if (matchedOption) {
+      handleSelectOption(matchedOption.id);
+    }
+  }
+};
 
   const handleSelectOption = (optionId) => {
-    if (currentQ.type === 'multiple_choice') {
-      let selectedArray = Array.isArray(currentAnswer) ? [...currentAnswer] : [];
-      if (selectedArray.includes(optionId)) {
-        selectedArray = selectedArray.filter(id => id !== optionId);
-      } else {
-        selectedArray.push(optionId);
-      }
-      setAnswer(currentQ.id, selectedArray);
+
+  if (currentQ.question_type === 'MULTIPLE_CHOICE') {
+
+    let selectedArray = Array.isArray(currentAnswer)
+      ? [...currentAnswer]
+      : [];
+
+    if (selectedArray.includes(optionId)) {
+
+      selectedArray = selectedArray.filter(
+        id => id !== optionId
+      );
+
     } else {
-      setAnswer(currentQ.id, optionId);
+
+      selectedArray.push(optionId);
+
     }
 
-    // Add to history transcript
-    const opt = currentQ.options.find(o => o.id === optionId);
-    const label = opt ? (isHindi ? opt.labelHi : opt.labelEn) : optionId;
-    setTranscriptHistory(prev => [...prev, { q: questionText, a: label }]);
-  };
+    setAnswer(currentQ.id, selectedArray);
+
+  } else {
+
+    setAnswer(currentQ.id, optionId);
+
+  }
+
+  const selectedOption = currentQ.options.find(
+    option => option.id === optionId
+  );
+
+  if (selectedOption) {
+
+    const label = isHindi
+      ? selectedOption.option_label_hi
+      : selectedOption.option_label_en;
+
+    setTranscriptHistory(prev => [
+      ...prev,
+      {
+        q: questionText,
+        a: label
+      }
+    ]);
+  }
+};
 
   const handleNext = () => {
     voiceService.stopSpeaking();
@@ -187,7 +328,7 @@ export function ConversationalAI() {
         {/* Active Question Bubble */}
         <div className="bg-gradient-to-r from-kiosk-peach/40 via-white to-sky-50 p-6 rounded-3xl border border-kiosk-peach-dark/30 shadow-kiosk-sm">
           <span className="text-xs font-bold text-kiosk-coral uppercase tracking-wider block mb-1">
-            Question {currentQuestionIndex + 1}
+            {t('questionOf')} {currentQuestionIndex + 1} {t('of')}
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-kiosk-charcoal tracking-tight leading-snug">
             {questionText}
@@ -222,7 +363,7 @@ export function ConversationalAI() {
 
         {/* Touch Option Cards (Integrated for seamless Voice OR Touch selection) */}
         <div className="space-y-3 pt-2">
-          {currentQ.type === 'yes_no' && (
+          {currentQ.question_type === 'YES_NO' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {currentQ.options.map((opt) => {
                 const isSelected = currentAnswer === opt.id;
@@ -238,7 +379,7 @@ export function ConversationalAI() {
                       }
                     `}
                   >
-                    <span>{isHindi ? opt.labelHi : opt.labelEn}</span>
+                    <span>{isHindi ? opt.option_label_hi : opt.option_label_en}</span>
                     {isSelected && (
                       <div className="w-7 h-7 rounded-full bg-kiosk-coral text-white flex items-center justify-center shrink-0">
                         <Check className="w-4 h-4 stroke-[3]" />
@@ -250,10 +391,10 @@ export function ConversationalAI() {
             </div>
           )}
 
-          {(currentQ.type === 'single_choice' || currentQ.type === 'severity_scale' || currentQ.type === 'multiple_choice') && (
+          {(currentQ.question_type === 'SINGLE_CHOICE' || currentQ.question_type === 'SCALE' || currentQ.question_type === 'MULTIPLE_CHOICE') && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {currentQ.options.map((opt) => {
-                const isSelected = currentQ.type === 'multiple_choice'
+                const isSelected = currentQ.question_type === 'MULTIPLE_CHOICE'
                   ? (Array.isArray(currentAnswer) && currentAnswer.includes(opt.id))
                   : currentAnswer === opt.id;
 
@@ -269,7 +410,7 @@ export function ConversationalAI() {
                       }
                     `}
                   >
-                    <span>{isHindi ? opt.labelHi : opt.labelEn}</span>
+                    <span>{isHindi ? opt.option_label_hi : opt.option_label_en}</span>
                     {isSelected && (
                       <div className="w-6 h-6 rounded-full bg-kiosk-blue text-white flex items-center justify-center shrink-0">
                         <Check className="w-3.5 h-3.5 stroke-[3]" />
