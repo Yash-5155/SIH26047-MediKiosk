@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { TRANSLATIONS } from '../data/translations';
 import { KIOSK_CONFIG } from '../config/kioskConfig';
 import { mockApi } from '../services/mockApi';
+import { MOCK_SESSIONS } from '../data/mockSessions';
 
 export const KioskContext = createContext(null);
 
@@ -25,15 +26,52 @@ const initialSessionState = {
   completedAt: null
 };
 
+// Default sample medical document extracted data for realistic demo
+export const SAMPLE_EXTRACTED_DOCS = [
+  {
+    id: 'DOC-2026-01',
+    documentType: 'Prescription',
+    documentName: 'Dr_Sharma_Prescription_Aug2026.pdf',
+    date: '2026-08-15',
+    issuer: 'City Care Hospital, OPD',
+    diagnosis: 'Acute Bronchitis & Secondary Pharyngitis',
+    medicines: [
+      'Amoxicillin 500mg (1 tablet thrice daily x 5 days)',
+      'Paracetamol 650mg (SOS for fever above 100°F)',
+      'Levocetirizine 5mg (1 tablet at bedtime)'
+    ],
+    labValues: [
+      'C-Reactive Protein (CRP): 18.4 mg/L [Elevated, Ref: <5.0]',
+      'Total Leukocyte Count: 11,400 /µL [Mild Leukocytosis]'
+    ],
+    abnormalValues: ['Elevated CRP (18.4 mg/L)', 'Mild Leukocytosis (11,400/µL)'],
+    doctorNotes: 'Advised rest, warm fluids, steam inhalation twice daily.'
+  }
+];
+
 export function KioskProvider({ children }) {
   const [language, setLanguage] = useState(KIOSK_CONFIG.defaultLanguage);
-  const [currentStep, setCurrentStep] = useState('language');
+  const [currentStep, setCurrentStep] = useState('welcome');
   const [interactionMode, setInteractionMode] = useState('TOUCH'); // 'TOUCH' | 'VOICE'
 
   const [patient, setPatient] = useState(initialPatientState);
   const [session, setSession] = useState(initialSessionState);
   const [scannedDocumentData, setScannedDocumentData] = useState(null);
   
+  // Medical Documents State (Screens 9-12)
+  const [medicalDocuments, setMedicalDocuments] = useState(SAMPLE_EXTRACTED_DOCS);
+  const [activeDocumentType, setActiveDocumentType] = useState('Prescription'); // 'Prescription' | 'Lab Report' | 'Discharge Summary'
+  const [capturedImage, setCapturedImage] = useState(null);
+  const [ocrResult, setOcrResult] = useState(null);
+  const [uploadedDocumentId, setUploadedDocumentId] = useState(null);
+  const [uploadedDocument, setUploadedDocument] = useState(null);
+
+  // Generated Clinical Summary State (Screens 13, 14, 18, 19)
+  const [clinicalSummary, setClinicalSummary] = useState(null);
+
+  // Doctor Queue State (Screens 16-19)
+  const [doctorQueue, setDoctorQueue] = useState(MOCK_SESSIONS);
+
   const [questions, setQuestions] = useState([]);
   const [responses, setResponses] = useState([]);
   const [answersMap, setAnswersMap] = useState({});
@@ -48,6 +86,7 @@ export function KioskProvider({ children }) {
   const [staffAuthenticated, setStaffAuthenticated] = useState(false);
   const [selectedSessionId, setSelectedSessionId] = useState(null);
   const [selectedPatientForSummary, setSelectedPatientForSummary] = useState(null);
+  const [isDoctorReviewReadOnly, setIsDoctorReviewReadOnly] = useState(false);
 
   // Modals
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
@@ -68,11 +107,17 @@ export function KioskProvider({ children }) {
   // Master Session Reset for Patient Kiosk
   const resetSession = useCallback(() => {
     setLanguage('en');
-    setCurrentStep('language');
+    setCurrentStep('welcome');
     setInteractionMode('TOUCH');
     setPatient(initialPatientState);
     setSession(initialSessionState);
     setScannedDocumentData(null);
+    setMedicalDocuments(SAMPLE_EXTRACTED_DOCS);
+    setCapturedImage(null);
+    setOcrResult(null);
+    setUploadedDocumentId(null);
+    setUploadedDocument(null);
+    setClinicalSummary(null);
     setResponses([]);
     setAnswersMap({});
     setCurrentQuestionIndex(0);
@@ -83,6 +128,34 @@ export function KioskProvider({ children }) {
     setIsAccessibilityModalOpen(false);
     setIsHowItWorksOpen(false);
     setIsInactivityWarningOpen(false);
+    setIsDoctorReviewReadOnly(false);
+  }, []);
+
+  // Add a newly scanned/uploaded document
+  const addMedicalDocument = useCallback((doc) => {
+    setMedicalDocuments(prev => [doc, ...prev]);
+  }, []);
+
+  // Update clinical summary (for doctor edits or patient intake generation)
+  const updateClinicalSummary = useCallback((updates) => {
+    setClinicalSummary(prev => ({ ...(prev || {}), ...updates }));
+  }, []);
+
+  // Update a session in the doctor queue (for doctor confirm/reject/edit)
+  const updateDoctorQueueSession = useCallback((sessionId, updates) => {
+    setDoctorQueue(prev => prev.map(s => {
+      if (s.session_id === sessionId) {
+        return {
+          ...s,
+          ...updates,
+          clinical_summary: {
+            ...(s.clinical_summary || {}),
+            ...(updates.clinical_summary || {})
+          }
+        };
+      }
+      return s;
+    }));
   }, []);
 
   // Update patient field
@@ -91,11 +164,13 @@ export function KioskProvider({ children }) {
   };
 
   // Record an answer in both answersMap and responses array matching backend IntakeResponse schema
+  // inputModeOverride — explicit mode string ('TOUCH'|'TEXT'|'VOICE') passed by interview components
   const setAnswer = (questionId, value, inputModeOverride = null) => {
     setAnswersMap(prev => ({ ...prev, [questionId]: value }));
 
     const targetQ = questions.find(q => q.id === questionId);
-    const qKey = targetQ ? targetQ.question_key : `q_${questionId}`;
+    const qKey = targetQ ? (targetQ.question_key || `q_${questionId}`) : `q_${questionId}`;
+    // Use the explicitly supplied override first, then context interactionMode, then fallback
     const mode = inputModeOverride || interactionMode || "TOUCH";
 
     const newResponse = {
@@ -128,7 +203,7 @@ export function KioskProvider({ children }) {
     const resetInactivityTimers = () => {
       clearTimeout(inactivityTimer);
 
-      if (currentStep !== 'language' && currentStep !== 'staffdashboard' && currentStep !== 'stafflogin' && currentStep !== 'staffsession') {
+      if (currentStep !== 'language' && currentStep !== 'staffdashboard' && currentStep !== 'stafflogin' && currentStep !== 'staffsession' && currentStep !== 'staffsummary') {
         inactivityTimer = setTimeout(() => {
           setIsInactivityWarningOpen(true);
         }, KIOSK_CONFIG.inactivityTimeoutSeconds * 1000);
@@ -178,6 +253,31 @@ export function KioskProvider({ children }) {
     resetSession,
     t,
 
+    // Medical Documents & OCR (Screens 9-12)
+    medicalDocuments,
+    setMedicalDocuments,
+    addMedicalDocument,
+    activeDocumentType,
+    setActiveDocumentType,
+    capturedImage,
+    setCapturedImage,
+    ocrResult,
+    setOcrResult,
+    uploadedDocumentId,
+    setUploadedDocumentId,
+    uploadedDocument,
+    setUploadedDocument,
+
+    // Clinical Summary (Screens 13, 14, 18, 19)
+    clinicalSummary,
+    setClinicalSummary,
+    updateClinicalSummary,
+
+    // Doctor Queue (Screens 16-19)
+    doctorQueue,
+    setDoctorQueue,
+    updateDoctorQueueSession,
+
     // Staff / Doctor Dashboard
     staffUser,
     setStaffUser,
@@ -187,6 +287,8 @@ export function KioskProvider({ children }) {
     setSelectedSessionId,
     selectedPatientForSummary,
     setSelectedPatientForSummary,
+    isDoctorReviewReadOnly,
+    setIsDoctorReviewReadOnly,
 
     // Modals
     isHelpModalOpen,

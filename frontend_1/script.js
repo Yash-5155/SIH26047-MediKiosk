@@ -32,7 +32,11 @@ document.addEventListener("DOMContentLoaded", () => {
       tab3Title: "Patient Identification",
       tab3Desc: "Select an option to proceed with your clinical intake",
       existingTitle: "Existing Patient",
+<<<<<<< Updated upstream
       existingSub: "Check in using ABHA / Health ID",
+=======
+      existingSub: "Check in using ABHA / Aadhaar ID",
+>>>>>>> Stashed changes
       newTitle: "New Patient",
       newSub: "First time visit / Create profile",
       btnVerify: "Verify & Continue",
@@ -59,7 +63,11 @@ document.addEventListener("DOMContentLoaded", () => {
       tab3Title: "रोगी पहचान (लॉग इन)",
       tab3Desc: "अपनी जांच आगे बढ़ाने के लिए एक विकल्प चुनें",
       existingTitle: "पुराने मरीज",
+<<<<<<< Updated upstream
       existingSub: "ABHA / हेल्थ आईडी द्वारा जांचें",
+=======
+      existingSub: "ABHA / आधार आईडी द्वारा जांचें",
+>>>>>>> Stashed changes
       newTitle: "नए मरीज",
       newSub: "पहली बार आगमन / नया प्रोफ़ाइल बनाएं",
       btnVerify: "सत्यापित करें और आगे बढ़ें",
@@ -75,7 +83,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+<<<<<<< Updated upstream
   function updateLanguage(lang) {
+=======
+  function updateLanguage(lang, syncReact = true) {
+>>>>>>> Stashed changes
     kioskState.selectedLanguage = lang;
     const bundle = translations[lang] || translations.en;
 
@@ -92,10 +104,17 @@ document.addEventListener("DOMContentLoaded", () => {
     safeSetText("#btnStart span", bundle.btnStart);
     safeSetText("#btnHelp span", bundle.btnHelp);
 
+<<<<<<< Updated upstream
     // Tab 2 Elements
     safeSetText("#tab-language .tab-main-title", bundle.tab2Title);
     safeSetText("#tab-language .tab-main-desc", bundle.tab2Desc);
     safeSetText("#btnContinueLang span", bundle.btnContinue);
+=======
+    // Tab 2 Elements (React Screen 2 synchronization)
+    if (syncReact && typeof renderReactScreen2 === "function") {
+      renderReactScreen2(lang);
+    }
+>>>>>>> Stashed changes
 
     // Tab 3 Elements
     safeSetText("#tab-identify .tab-main-title", bundle.tab3Title);
@@ -125,7 +144,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (navLangText) navLangText.textContent = lang === "hi" ? "हिन्दी" : "English";
     if (navLangBadge) navLangBadge.textContent = lang.toUpperCase();
 
+<<<<<<< Updated upstream
     // Synchronize Tab 2 Selected Card
+=======
+    // Synchronize any legacy Tab 2 Cards if present
+>>>>>>> Stashed changes
     document.querySelectorAll(".lang-card").forEach(card => {
       if (card.getAttribute("data-lang") === lang) {
         card.classList.add("selected");
@@ -242,6 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================================================
+<<<<<<< Updated upstream
   // 5. TAB 2: LANGUAGE SELECTION
   // ==========================================================================
   const langCards = document.querySelectorAll(".lang-card:not(.disabled)");
@@ -257,6 +281,45 @@ document.addEventListener("DOMContentLoaded", () => {
     btnContinueLang.addEventListener("click", () => navigateToTab("tab-identify"));
   }
 
+=======
+  // 5. TAB 2: LANGUAGE SELECTION (React Implementation)
+  // ==========================================================================
+  let reactScreen2Root = null;
+
+  function renderReactScreen2(currentLang) {
+    const container = document.getElementById("react-language-root");
+    if (!container) return;
+
+    if (!window.React || !window.ReactDOM || !window.LanguageSelection) {
+      console.warn("[Screen 2 React] React, ReactDOM, or LanguageSelection component not yet ready.");
+      return;
+    }
+
+    if (!reactScreen2Root) {
+      reactScreen2Root = window.ReactDOM.createRoot(container);
+    }
+
+    const activeLang = currentLang || kioskState.selectedLanguage || "en";
+
+    reactScreen2Root.render(
+      window.React.createElement(window.LanguageSelection, {
+        selectedLanguage: activeLang,
+        onLanguageChange: (newLang) => {
+          kioskState.selectedLanguage = newLang;
+          updateLanguage(newLang, false); // sync rest of app without re-triggering self
+        },
+        onContinue: (lang) => {
+          kioskState.selectedLanguage = lang;
+          navigateToTab("tab-identify");
+        }
+      })
+    );
+  }
+
+  // Initial mount of React Screen 2
+  renderReactScreen2(kioskState.selectedLanguage);
+
+>>>>>>> Stashed changes
   // ==========================================================================
   // 6. TAB 3: PATIENT IDENTIFICATION
   // ==========================================================================

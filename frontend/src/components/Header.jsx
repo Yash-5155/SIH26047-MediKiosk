@@ -77,16 +77,6 @@ export function Header() {
             </span>
           </button>
 
-          {/* Accessibility Options Button */}
-          <button
-            onClick={() => setIsAccessibilityModalOpen(true)}
-            className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 transition-all active:scale-95 flex items-center gap-1.5 font-medium text-sm"
-            aria-label={t('accessibilityBtn')}
-          >
-            <Eye className="w-5 h-5 text-slate-600" />
-            <span className="hidden md:inline">{t('accessibilityBtn')}</span>
-          </button>
-
           {/* Help Button (for patient flow) */}
           {!isStaffView && (
             <button
