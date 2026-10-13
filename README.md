@@ -17,4 +17,4 @@ Currently in development.
 - Kirti
 - Satya
 - Abhigya
-- Yuvraj
+- Murtuza
